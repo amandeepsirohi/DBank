@@ -11,7 +11,7 @@ actor DBank{
   // current Value is a stable => orthogonal persistant var => it 
   //will remember it's state
   stable var currentValue: Float = 50;
-
+  currentValue := 40;
   //let vars remain constant throughout
   let id = 111212121;
 
@@ -59,14 +59,14 @@ actor DBank{
 
   //get nanosec since 1971 till now
   stable var startTime = Time.now();
-  
+  startTime := Time.now();
 
   //give the amount earned by consumer with 1% intrest per/sec
   public func compund()
   {
     let currentTime = Time.now();
     let timeElapsedNS = currentTime - startTime; // time elaplse in seconds
-    let timeElapsedS = timeElapsedNS / 1000000000; // time elapse in seconds
+    let timeElapsedS = timeElapsedNS / 10000000000; // time elapse in seconds
 
     let time_ = (1.01 * Float.fromInt(timeElapsedS));
     currentValue := currentValue * time_;
