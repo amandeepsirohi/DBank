@@ -1,11 +1,16 @@
 import Debug "mo:base/Debug";
 import Nat "mo:base/Nat";
+import { now } = "mo:base/Time";
+import Time "mo:base/Time";
+import Float "mo:base/Float";
 
 //class for DBank
 actor DBank{
 
   //var for current bank balance
-  var currentValue = 30;
+  // current Value is a stable => orthogonal persistant var => it 
+  //will remember it's state
+  stable var currentValue: Float = 50;
 
   //let vars remain constant throughout
   let id = 111212121;
@@ -17,7 +22,7 @@ actor DBank{
   //topUp took care of adding money to account
   //if made public => can be accessed from anywhere cmd line
   //providing amount to add Nat= Natural Number
-  public func topUp(amount: Nat)
+  public func topUp(amount: Float)
   {
     currentValue += amount;
     //print currentValue
@@ -27,9 +32,9 @@ actor DBank{
   // topUp();
 
   //withdraw function for withdrawl of money from account
-  public func withdraw(amount : Nat)
+  public func withdraw(amount : Float)
   { 
-    let tempVal: Int = currentValue - amount;
+    let tempVal: Float = currentValue - amount;
     if(tempVal >= 0)
     { 
       currentValue -= amount;
@@ -46,11 +51,25 @@ actor DBank{
 
   //query calls are used to operate on current state of canister without changing it
   //if returning make it asynchronus => independent of other function to load up  
-  public query func checkbalance() : async Nat
+  public query func checkbalance() : async Float
   {   
       //read only operation
       return currentValue;
   };
 
+  //get nanosec since 1971 till now
+  stable var startTime = Time.now();
+  
 
+  //give the amount earned by consumer with 1% intrest per/sec
+  public func compund()
+  {
+    let currentTime = Time.now();
+    let timeElapsedNS = currentTime - startTime; // time elaplse in seconds
+    let timeElapsedS = timeElapsedNS / 1000000000; // time elapse in seconds
+
+    let time_ = (1.01 * Float.fromInt(timeElapsedS));
+    currentValue := currentValue * time_;
+    startTime := currentTime; // change start time to current time each time 
+  }
 }
